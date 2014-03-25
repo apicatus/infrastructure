@@ -1,0 +1,68 @@
+# the IP(s) on which your node server is running. I chose port 3000.
+upstream apicat.us {
+    server 127.0.0.1:3000;
+}
+upstream app.apicat.us {
+    server 127.0.0.1:8080;
+}
+
+server {
+    listen          80;
+    server_name     www.apicat.us;
+    return          301 $scheme://apicat.us$request_uri;
+}
+# the nginx server instance
+server {
+    listen 0.0.0.0:80;
+    listen 443;
+
+    server_name apicat.us;
+
+    access_log /var/log/nginx/apicat.us.log;
+    error_log /var/log/nginx/apicat.us.error.log debug;
+
+    ssl on;
+    ssl_certificate /etc/nginx/ssl/server.crt;
+    ssl_certificate_key /etc/nginx/ssl/server.key;
+
+    location ~ ^/(images/|img/|javascript/|js/|css/|stylesheets/|flash/|media/|static/|robots.txt|humans.txt|favicon.ico) {
+        root /var/www/apicatus/landing/public;
+        access_log off;
+        expires max;
+    }
+
+    location / {
+        root /var/www/apicatus/landing;
+        index index.html index.htm;
+        try_files $uri $uri/ @node;
+    }
+    # pass the request to the node.js server with the correct headers and much more can be added, see nginx config options
+    location @node {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-NginX-Proxy true;
+
+        proxy_pass http://apicat.us;
+        proxy_redirect off;
+    }
+}
+
+# the nginx server instance
+server {
+    listen 0.0.0.0:80;
+    server_name app.apicat.us *.apicat.us;
+    access_log /var/log/nginx/app.apicat.us.log;
+    error_log /var/log/nginx/app.apicat.us.error.log debug;
+
+    # pass the request to the node.js server with the correct headers and much more can be added, see nginx config options
+    location / {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-NginX-Proxy true;
+
+        proxy_pass http://app.apicat.us/;
+        proxy_redirect off;
+    }
+}
