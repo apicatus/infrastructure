@@ -1,7 +1,8 @@
-# the IP(s) on which your node server is running. I chose port 3000.
+# The landing is proxied from port 3000
 upstream apicat.us {
     server 127.0.0.1:3000;
 }
+# The application is proxied from port 8080
 upstream app.apicat.us {
     server 127.0.0.1:8080;
 }
