@@ -24,7 +24,8 @@ env APPLICATION_DIRECTORY="/var/www/backend"
 env APPLICATION_START="app.js"
 env SCRIPTNAME="/etc/init.d/$NAME"
 env PIDFILE="/var/run/$NAME.pid"
-env LOGFILE="/var/log/$NAME.log"
+env LOGDIR="/var/log/$NAME"
+env LOGFILE="$LOGDIR/api.$NAME.log"
 env USER="webadmin"
 export NODE_ENV="production"
 
@@ -33,6 +34,7 @@ script
 end script
 
 pre-start script
+    mkdir $LOGDIR
     echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> $LOGFILE
 end script
 

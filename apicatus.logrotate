@@ -1,0 +1,11 @@
+/var/log/apicatus/*.log {
+    missingok
+    notifempty
+    weekly
+    minsize 1M
+    create 0640 webadmin webadmin
+    rotate 4
+    copytruncate
+    compress
+    maxage 100
+}

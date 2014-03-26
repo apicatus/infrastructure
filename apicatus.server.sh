@@ -67,7 +67,8 @@ NODE_PATH="/usr/lib/node_modules"
 APPLICATION_DIRECTORY="/var/www/backend"
 APPLICATION_START="app.js"
 PIDFILE="/var/run/$NAME.pid"
-LOGFILE="/var/log/$NAME.log"
+LOGDIR="/var/log/$NAME"
+LOGFILE="$LOGDIR/api.$NAME.log"
 
 # Add node to the path for situations in which the environment is passed.
 PATH=$NODE_BIN_DIR:$PATH
@@ -105,7 +106,7 @@ start() {
     # We're only using it as a marker for whether or not the process is
     # running.
     test -x $APPLICATION_DIRECTORY || { stop; exit 0; }
-
+    mkdir $LOGDIR
     touch $LOGFILE
     touch $PIDFILE
 
