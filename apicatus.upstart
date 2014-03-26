@@ -1,13 +1,23 @@
 #!upstart
-#
-# An example upstart script for running a Node.js process as a service
+
+### BEGIN INIT INFO
+# Provides:          apicatus.upstart
+# Required-Start:    $remote_fs $syslog
+# Required-Stop:     $remote_fs $syslog
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# Short-Description: Start apicatus daemon at boot time
+# Description:       Enable service provided by apicatus daemon.
+### END INIT INFO
+
+# Apicatus upstart script for running a Node.js process as a service
 # using Forever as the process monitor. For more configuration options
 # associated with Forever, see: https://github.com/nodejitsu/forever
 #
 # You will need to set the environment variables noted below to conform to
 # your use case, and should change the description.
 #
-description "Example upstart script for a Node.js process"
+description "Apicatus upstart script"
  
 start on startup
 stop on shutdown
@@ -44,7 +54,7 @@ expect fork
 env NODE_BIN_DIR="/usr/bin"
 env NODE_PATH="/usr/lib/node_modules"
 env APPLICATION_DIRECTORY="/var/www/backend"
-env APPLICATION_START="server.sh"
+env APPLICATION_START="apicatus.server.sh"
 env LOG="/var/log/apicatus.log"
 
 script
@@ -57,9 +67,14 @@ script
     # someone makes an error in application initialization code, or bringing down
     # production servers the same way if a database or other critical service
     # suddenly becomes inaccessible.
-    exec $APPLICATION_START start
+    exec $APPLICATION_START start >> $LOG
 end script
- 
+
+pre-start script
+    # Date format same as (new Date()).toISOString() for consistency
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> $LOG
+end script
+
 pre-stop script
     # Add the node executables to the path.
     PATH=$NODE_BIN_DIR:$PATH
@@ -68,5 +83,6 @@ pre-stop script
     # its data. Note that doing it this way means that each application that
     # runs under Forever must have a different start file name, regardless of
     # which directory it is in.
-    exec forever stop $APPLICATION_START >> $LOG
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> $LOG
+    exec $APPLICATION_START stop >> $LOG
 end script
