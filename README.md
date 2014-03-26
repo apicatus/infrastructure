@@ -69,6 +69,15 @@ $ sudo initctl reload-configuration
 $ start apicatus
 ```
 
+## Log Rotation
+The application logs all it's activity to `/var/log/apicatus` (by default), to keep things clean there is a logrotate configuration: `apicatus.logrotate`, to use it just:
+
+```sh
+$ git-clone https://github.com/apicatus/infrastructure.git
+$ cd infrastructure
+$ sudo cp apicatus.logrotate /etc/logrotate.d/apicatus
+```
+
 ## Complete Uninstall
 
 ```sh
