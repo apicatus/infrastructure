@@ -1,5 +1,3 @@
-#!upstart
-
 # Apicatus upstart script for running a Node.js process as a service
 # using Forever as the process monitor. For more configuration options
 # associated with Forever, see: https://github.com/nodejitsu/forever
@@ -8,70 +6,41 @@
 # your use case, and should change the description.
 #
 description "Apicatus upstart script"
- 
-start on (startup and net-device-up and local-filesystems)
+author "Benjamin Maggi <benjaminmaggi@gmail.com>"
+
+start on startup
 stop on shutdown
 
 # automatically respawn, but if its respwaning too fast (5 times in 60 seconds, don't do that)
 respawn
 respawn limit 5 60
-
 # This line is needed so that Upstart reports the pid of the Node.js process
 # started by Forever rather than Forever's pid.
-expect fork
- 
-# The following environment variables must be set so as to define
-# where forever script can be found.
-#
-# The full path to the directory containing the node and forever binaries.
-# env NODE_BIN="/usr/bin/node"
-# The directory containing the application forever startup script.
-# env APPLICATION="/route/to/your/my-application.sh"
-# The pid file
-# env PIDFILE="start-my-application.js"
-# Log file path.
-# env LOGFILE="/var/log/my-application.log"
-# UserId whos supposed to run the server
 
 env NAME="apicatus"
 env NODE_BIN="/usr/bin/node"
-env DAEMON="/var/www/backend/apicatus.server.sh"
+env APPLICATION="/var/www/backend/app.js"
+env APPLICATION_DIRECTORY="/var/www/backend"
+env APPLICATION_START="app.js"
 env SCRIPTNAME="/etc/init.d/$NAME"
 env PIDFILE="/var/run/$NAME.pid"
 env LOGFILE="/var/log/$NAME.log"
 env USER="webadmin"
+export NODE_ENV="production"
 
 script
-    # Add the node executables to the path, which includes Forever if it is
-    # installed globally, which it should be.
-    PATH=$NODE_BIN:$PATH
-    # The minUptime and spinSleepTime settings stop Forever from thrashing if
-    # the application fails immediately on launch. This is generally necessary to
-    # avoid loading development servers to the point of failure every time 
-    # someone makes an error in application initialization code, or bringing down
-    # production servers the same way if a database or other critical service
-    # suddenly becomes inaccessible.
-    exec $DAEMON start -u $USER >> $LOGFILE
+    exec start-stop-daemon --start --chuid $USER --make-pidfile --pidfile $PIDFILE --chdir $APPLICATION_DIRECTORY --exec $NODE_BIN -- $APPLICATION_START >> $LOGFILE 2>&1
 end script
 
 pre-start script
-    # make sure node is there, the daemon is also there
-    test -x $NODE_BIN || { stop; exit 0; }
-    test -x $DAEMON || { stop; exit 0; }
-    # Date format same as (new Date()).toISOString() for consistency
     echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Starting" >> $LOGFILE
 end script
 
 pre-stop script
-    # Add the node executables to the path.
-    PATH=$NODE_BIN:$PATH
-    # Here we're using the pre-stop script to stop the Node.js application
-    # process so that Forever is given a chance to do its thing and tidy up
-    # its data. Note that doing it this way means that each application that
-    # runs under Forever must have a different start file name, regardless of
-    # which directory it is in.
     echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopping" >> $LOGFILE
-    exec $DAEMON stop -u $USER >> $LOGFILE
-    # Many daemons don't delete their pidfiles when they exit.
+end script
+
+post-stop script
     rm -f $PIDFILE
+    echo "[`date -u +%Y-%m-%dT%T.%3NZ`] (sys) Stopped" >> $LOGFILE
 end script
