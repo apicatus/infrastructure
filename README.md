@@ -42,6 +42,7 @@ $ sudo service nginx restart
 # Running Apicatus as a service:
 The application can be run as a service, directly from the command line or while developing by running `$ gulp develop`
 There are mainly two ways to run it as a service all of whom require node monitor `forever` (link somewhere)
+Make sure you modify the variables according to your onw configuration !
 
 ## Sysem V init
 Init script `apicatus.server.sh` can be installed installed following the instrucctions below:
@@ -56,16 +57,17 @@ $ sudo service apicatus start
 ```
 
 ## Upstart (Ubuntu & others)
-Upstart script `apicatus.upstart` can be installed installed following the instrucctions below:
+Upstart script `apicatus.upstart` relies on forever to deamonize the service, make sure you change the $DEAMON variable inside the upstart script to target your service start/stop routines.
 
 ```sh
 $ sudo npm install -g forever
 $ git-clone https://github.com/apicatus/infrastructure.git
 $ cd infrastructure
+$ cp apicatus.server.sh /<app-source>/apicatus.server.sh
 $ sudo cp apicatus.upstart /etc/init/apicatus.conf
+$ sudo initctl reload-configuration
 $ start apicatus
 ```
-
 
 ## Complete Uninstall
 
