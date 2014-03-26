@@ -61,13 +61,13 @@
 # Log file path.
 # LOGFILE=/var/log/my-application.log
 #
-NAME=
-NODE_BIN_DIR=
-NODE_PATH=
-APPLICATION_DIRECTORY=
-APPLICATION_START=
-PIDFILE=
-LOGFILE=
+NAME="Apicatus"
+NODE_BIN_DIR="/usr/bin"
+NODE_PATH="/usr/lib/node_modules"
+APPLICATION_DIRECTORY="/var/www/backend"
+APPLICATION_START="app.js"
+PIDFILE="/var/run/apicatus.pid"
+LOGFILE="/var/log/apicatus.log"
  
 # Add node to the path for situations in which the environment is passed.
 PATH=$NODE_BIN_DIR:$PATH
@@ -93,6 +93,9 @@ start() {
     # The pidfile contains the child process pid, not the forever process pid.
     # We're only using it as a marker for whether or not the process is
     # running.
+    touch $LOGFILE
+    touch $PIDFILE
+
     forever --pidFile $PIDFILE --sourceDir $APPLICATION_DIRECTORY \
         -a -l $LOGFILE --minUptime 5000 --spinSleepTime 2000 \
         start $APPLICATION_START &
