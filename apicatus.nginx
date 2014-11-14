@@ -1,8 +1,7 @@
-# the IP(s) on which your node server is running. I chose port 3000.
-upstream apicat.us {
-    server 127.0.0.1:3000;
+upstream landing.apicat.us {
+    server 127.0.0.1:7080;
 }
-upstream app.apicat.us {
+upstream api.apicat.us {
     server 127.0.0.1:8080;
 }
 
@@ -11,29 +10,31 @@ server {
     server_name     www.apicat.us;
     return          301 $scheme://apicat.us$request_uri;
 }
-# the nginx server instance
+
+# Landing page
 server {
     listen 0.0.0.0:80;
     listen 443;
 
     server_name apicat.us;
 
-    access_log /var/log/nginx/apicat.us.log;
-    error_log /var/log/nginx/apicat.us.error.log debug;
+    access_log /var/log/nginx/landing.apicat.us.log;
+    error_log /var/log/nginx/landing.apicat.us.error.log debug;
 
     ssl on;
     ssl_certificate /etc/nginx/ssl/server.crt;
     ssl_certificate_key /etc/nginx/ssl/server.key;
 
     location ~ ^/(images/|img/|javascript/|js/|css/|stylesheets/|flash/|media/|static/|robots.txt|humans.txt|favicon.ico) {
-        root /var/www/apicatus/landing/public;
+        root /var/www/landing;
         access_log off;
         expires max;
     }
 
     location / {
-        root /var/www/apicatus/landing;
+        root /var/www/landing;
         index index.html index.htm;
+        access_log off;
         try_files $uri $uri/ @node;
     }
     # pass the request to the node.js server with the correct headers and much more can be added, see nginx config options
@@ -42,27 +43,53 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_set_header X-NginX-Proxy true;
-
-        proxy_pass http://apicat.us;
         proxy_redirect off;
+
+        proxy_pass http://landing.apicat.us;
+
     }
 }
 
-# the nginx server instance
+# Application
 server {
     listen 0.0.0.0:80;
-
-    server_name app.apicat.us *.apicat.us;
+    server_name app.apicat.us;
 
     access_log /var/log/nginx/app.apicat.us.log;
     error_log /var/log/nginx/app.apicat.us.error.log debug;
 
-    # Static content
-    location ~* ^.+\.(src|jpg|jpeg|gif|png|svg|ico|css|zip|tgz|gz|rar|bz2|pdf|txt|tar|wav|bmp|rtf|js|flv|swf|html|htm|woff|eot|ttf)$ {
+    # Serve Static content
+    location / {
         root /var/www/frontend/build;
+        index index.html index.htm;
         access_log off;
         expires max;
     }
+
+    # Proxy socket.io to api service
+    location ^~ /socket {
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header Host $http_host;
+        proxy_set_header X-NginX-Proxy true;
+
+        # Enables WS support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_redirect off;
+
+        proxy_pass   http://api.apicat.us;
+    }
+}
+
+# API Service
+server {
+    listen 0.0.0.0:80;
+    server_name api.apicat.us *.apicat.us;
+
+    access_log /var/log/nginx/api.apicat.us.log;
+    error_log /var/log/nginx/api.apicat.us.error.log debug;
 
     # pass the request to the node.js server with the correct headers and much more can be added, see nginx config options
     location / {
@@ -70,8 +97,15 @@ server {
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
         proxy_set_header Host $http_host;
         proxy_set_header X-NginX-Proxy true;
-
-        proxy_pass http://app.apicat.us/;
         proxy_redirect off;
+
+        # Enables WS support
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_redirect off;
+
+
+        proxy_pass http://api.apicat.us;
     }
 }
