@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Apicatus upstart script for running a Node.js process as a service
+# An example init script for running a Node.js process as a service
 # using Forever as the process monitor. For more configuration options
 # associated with Forever, see: https://github.com/nodejitsu/forever
 #
@@ -61,15 +61,14 @@
 # Log file path.
 # LOGFILE=/var/log/my-application.log
 #
-NAME="apicatus"
+NAME="Apicatus"
 NODE_BIN_DIR="/usr/bin"
 NODE_PATH="/usr/lib/node_modules"
 APPLICATION_DIRECTORY="/var/www/backend"
 APPLICATION_START="app.js"
-PIDFILE="/var/run/$NAME.pid"
-LOGDIR="/var/log/$NAME"
-LOGFILE="$LOGDIR/api.$NAME.log"
-
+PIDFILE="/var/run/apicatus.pid"
+LOGFILE="/var/log/apicatus.log"
+ 
 # Add node to the path for situations in which the environment is passed.
 PATH=$NODE_BIN_DIR:$PATH
 # Export all environment variables that must be visible for the Node.js
@@ -77,17 +76,9 @@ PATH=$NODE_BIN_DIR:$PATH
 # variables defined in this script.
 export NODE_PATH=$NODE_PATH
 export NODE_ENV=production
-
-# Load the VERBOSE setting and other rcS variables
-. /lib/init/vars.sh
-# I like to know what is going on
-VERBOSE=yes
-
-# Define LSB log_* functions.
-# Depend on lsb-base (>= 3.2-14) to ensure that this file is present
-# and status_of_proc is working.
-. /lib/lsb/init-functions
-
+export MONGO_USER=<%MONGO_USER%>
+export MONGO_PASS=<%MONGO_PASS%>
+ 
 start() {
     echo "Starting $NAME"
     # We're calling forever directly without using start-stop-daemon for the
@@ -105,8 +96,6 @@ start() {
     # The pidfile contains the child process pid, not the forever process pid.
     # We're only using it as a marker for whether or not the process is
     # running.
-    test -x $APPLICATION_DIRECTORY || { stop; exit 0; }
-    mkdir $LOGDIR
     touch $LOGFILE
     touch $PIDFILE
 
@@ -136,7 +125,6 @@ restart() {
     echo "Restarting $NAME"
     stop
     start
-    return 0
 }
  
 status() {
@@ -166,7 +154,7 @@ case "$1" in
         restart
         ;;
     *)
-        echo "Usage: {start|stop|status|restart}" >&2
+        echo "Usage: {start|stop|status|restart}"
         exit 1
         ;;
 esac
