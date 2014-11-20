@@ -5,9 +5,10 @@ SRCDIR=/var/deploy/landing
 SRCFILE=landing.tar.gz
 OUTDIR=/var/www/landing2
 CWD=$(pwd)
+INFRASTRUCTURE=/var/www/infrastructure
 
 # Stop server
-$OUTDIR/apicatus.landing.sh stop
+$INFRASTRUCTURE/apicatus.landing.sh stop
 # Remove previous snapshot
 rm -fr $OUTDIR.$(date +"%m-%d-%y")
 # Move original
@@ -31,7 +32,9 @@ tar -xvf landing.tar
 # install dependencies
 echo "INSTALL"
 npm install
+# get out of deploy dir
+cd CWD
 # start server
-$OUTDIR/apicatus.landing.sh start
+$INFRASTRUCTURE/apicatus.landing.sh start
 
 
