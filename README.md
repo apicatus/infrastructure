@@ -77,6 +77,17 @@ $ git-clone https://github.com/apicatus/infrastructure.git
 $ cd infrastructure
 $ sudo cp apicatus.logrotate /etc/logrotate.d/apicatus
 ```
+## Password encryption & decryption
+`catacomb.sh` uses ssh key pairs (private and public) to encrypt sensitive information that you may want to store in a public repo.
+
+### Encrypt strings
+```sh
+./catacomb.sh encrypt "username"
+```
+### Decrypt strings
+```sh
+./catacomb.sh decrypt "2UPBnROTcmnAF0OtMOsRXKpF3xsn7"
+```
 
 ## Complete Uninstall
 

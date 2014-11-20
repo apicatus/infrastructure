@@ -64,10 +64,10 @@
 NAME="Apicatus"
 NODE_BIN_DIR="/usr/bin"
 NODE_PATH="/usr/lib/node_modules"
-APPLICATION_DIRECTORY="/var/www/backend"
+APPLICATION_DIRECTORY="/var/www/landing"
 APPLICATION_START="app.js"
-PIDFILE="/var/run/apicatus/backend.pid"
-LOGFILE="/var/log/apicatus/backend.log"
+PIDFILE="/var/run/apicatus/landing.pid"
+LOGFILE="/var/log/apicatus/landing.log"
 
 # Decrypt Function
 decrypt() {
