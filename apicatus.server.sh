@@ -66,8 +66,8 @@ NODE_BIN_DIR="/usr/bin"
 NODE_PATH="/usr/lib/node_modules"
 APPLICATION_DIRECTORY="/var/www/backend"
 APPLICATION_START="app.js"
-PIDFILE="/var/run/apicatus/backend.pid"
-LOGFILE="/var/log/apicatus/backend.log"
+PIDFILE="/var/run/apicatus/autostart.backend.pid"
+LOGFILE="/var/log/apicatus/autostart.backend.log"
 
 # Decrypt Function
 decrypt() {

@@ -66,8 +66,8 @@ NODE_BIN_DIR="/usr/bin"
 NODE_PATH="/usr/lib/node_modules"
 APPLICATION_DIRECTORY="/var/www/landing"
 APPLICATION_START="app.js"
-PIDFILE="/var/run/apicatus/landing.pid"
-LOGFILE="/var/log/apicatus/landing.log"
+PIDFILE="/var/run/apicatus/autostart.landing.pid"
+LOGFILE="/var/log/apicatus/autostart.landing.log"
 
 # Decrypt Function
 decrypt() {

@@ -2,6 +2,7 @@
 
 # List of applications separated by spaces
 APPLICATIONS="landing frontend"
+INFRASTRUCTURE=/var/www/infrastructure
 
 ###############################################################################
 # Start task by name                                                          #
@@ -12,7 +13,7 @@ watch () {
     PRFIX=$APPNAME.tar.gz                                   # prefix to watch for
     LOGFILE=/var/log/apicatus/autodeploy.$APPNAME.log       # Log File
     PIDFILE=/var/run/apicatus/autodeploy.$APPNAME.pid       # PID File
-    RUNCMD=./deploy.$APPNAME.sh                             # What to call when changes happen
+    RUNCMD=$INFRASTRUCTURE/deploy.$APPNAME.sh               # What to call when changes happen
 
     touch $LOGFILE
     touch $PIDFILE

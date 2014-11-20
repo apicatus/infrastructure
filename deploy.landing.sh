@@ -6,6 +6,15 @@ SRCFILE=landing.tar.gz
 OUTDIR=/var/www/landing
 CWD=$(pwd)
 INFRASTRUCTURE=/var/www/infrastructure
+LOGFILE=/var/log/apicatus/deploy.landing.log
+
+echo "building: "$APPNAME
+
+# test if fd 1 (STDOUT) is NOT associated with a terminal
+if [ ! -t 1 ] ; then
+    # redirect STDOUT and STDERR to a file (note the single > -- this will truncate log)
+    exec > $LOGFILE 2>&1
+fi
 
 # Stop server
 $INFRASTRUCTURE/apicatus.landing.sh stop
