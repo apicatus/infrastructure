@@ -3,7 +3,7 @@
 APPNAME=landing
 SRCDIR=/var/deploy/landing
 SRCFILE=landing.tar.gz
-OUTDIR=/var/www/landing2
+OUTDIR=/var/www/landing
 CWD=$(pwd)
 INFRASTRUCTURE=/var/www/infrastructure
 
@@ -33,7 +33,7 @@ tar -xvf landing.tar
 echo "INSTALL"
 npm install
 # get out of deploy dir
-cd CWD
+cd $CWD
 # start server
 $INFRASTRUCTURE/apicatus.landing.sh start
 

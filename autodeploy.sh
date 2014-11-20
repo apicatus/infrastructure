@@ -2,12 +2,12 @@
 
 # Autodeploy Script
 watch () {
-    APPNAME=$1                                    # App Name
-    WATCHDIR=/var/deploy/$APPNAME                 # Watch changes in this directory
-    PRFIX=$APPNAME.tar.gz                         # prefix to watch for
-    LOGFILE=/var/log/autodeploy.$APPNAME.log      # Log File
-    PIDFILE=/var/run/autodeploy.$APPNAME.pid      # PID File
-    RUNCMD=./deploy.$APPNAME.sh                   # What to call when changes happen
+    APPNAME=$1                                              # App Name
+    WATCHDIR=/var/deploy/$APPNAME                           # Watch changes in this directory
+    PRFIX=$APPNAME.tar.gz                                   # prefix to watch for
+    LOGFILE=/var/log/apicatus/autodeploy.$APPNAME.log       # Log File
+    PIDFILE=/var/run/apicatus/autodeploy.$APPNAME.pid       # PID File
+    RUNCMD=./deploy.$APPNAME.sh                             # What to call when changes happen
 
     # Run Watcher
     inoticoming --foreground --logfile $LOGFILE --pid-file $PIDFILE $WATCHDIR --prefix $PRFIX --stderr-to-log $RUNCMD $WATCHDIR/{} \;
