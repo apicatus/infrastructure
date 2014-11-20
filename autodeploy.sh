@@ -3,7 +3,9 @@
 # List of applications separated by spaces
 APPLICATIONS="landing frontend"
 
-# Start task by name
+###############################################################################
+# Start task by name                                                          #
+###############################################################################
 watch () {
     APPNAME=$1                                              # App Name
     WATCHDIR=/var/deploy/$APPNAME                           # Watch changes in this directory
@@ -16,10 +18,13 @@ watch () {
     touch $PIDFILE
 
     # Run Watcher
-    inoticoming --foreground --logfile $LOGFILE --pid-file $PIDFILE $WATCHDIR --prefix $PRFIX --stderr-to-log --stdout-to-log $RUNCMD $WATCHDIR/{} \;
+    inoticoming --logfile $LOGFILE --pid-file $PIDFILE $WATCHDIR --prefix $PRFIX --stderr-to-log --stdout-to-log $RUNCMD $WATCHDIR/{} \;
+    return $?
 }
 
-# Stop task by name
+###############################################################################
+# Stop task by name                                                           #
+###############################################################################
 stop () {
     APPNAME=$1                                              # App Name
     PIDFILE=/var/run/apicatus/autodeploy.$APPNAME.pid       # PID File
@@ -28,9 +33,12 @@ stop () {
     if [ -r "$PIDFILE" ] ; then
         kill -9 $(cat "$PIDFILE") || true
         rm -f "$PIDFILE"
+        return $?
     fi
 }
-
+###############################################################################
+# Watch all applications                                                      #
+###############################################################################
 watchall () {
     for APPNAME in $APPLICATIONS
     do
@@ -39,7 +47,9 @@ watchall () {
         RETVAL=$?
     done
 }
-
+###############################################################################
+# Stop all applications                                                       #
+###############################################################################
 stopall () {
     for APPNAME in $APPLICATIONS
     do
@@ -55,22 +65,30 @@ stopall () {
     done
 }
 
-restart() {
+###############################################################################
+# Restart all tasks                                                           #
+###############################################################################
+restartall() {
     echo "Restarting $NAME"
     stopall
     watchall
 }
 
-status() {
-    echo "Status for $NAME:"
-    # This is taking the lazy way out on status, as it will return a list of
-    # all running Forever processes. You get to figure out what you want to
-    # know from that information.
-    #
-    # On Ubuntu, this isn't even necessary. To find out whether the service is
-    # running, use "service my-application status" which bypasses this script
-    # entirely provided you used the service utility to start the process.
-
+###############################################################################
+# Status
+###############################################################################
+statusall() {
+    for APPNAME in $APPLICATIONS
+    do
+        PIDFILE=/var/run/apicatus/autodeploy.$APPNAME.pid
+        if [ -f $PIDFILE ]; then
+            ps -ef | grep $PIDFILE
+            RETVAL=$?
+        else
+            echo "$APPNAME is not running."
+            RETVAL=0
+        fi
+    done
     RETVAL=$?
 }
 
@@ -82,10 +100,10 @@ case "$1" in
         stopall
         ;;
     status)
-        status
+        statusall
         ;;
     restart)
-        restart
+        restartall
         ;;
     *)
         echo "Usage: {start|stop|status|restart}"
@@ -93,13 +111,3 @@ case "$1" in
         ;;
 esac
 exit $RETVAL
-
-
-
-
-
-
-
-
-
-
