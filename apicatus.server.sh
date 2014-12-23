@@ -95,6 +95,8 @@ export MONGO_USER=$(decrypt "Y8ZyimnTiChprmvuAG6yi9EtWVbqLgvSgLy+LHrw5JJaM2NFtlh
 export MONGO_PASS=$(decrypt "QSYmzbiFtX8JYr5z8GMQ0aH2EOIZ0//2UPBnROTcmnAF0OtMOsRXKpF3xsn7+jg1U+8JC3nwOdfc7Gv7+rSGPcOMms9XH64YQUQtnMLJDcPsmZIoKnyu2T0S8i6aL4qAPAkRrc0WXTUinL9CpMrvhmBqhWvGinLuoWjcaQGD1gZgWjpm/RnX/Nm3ViY+oEBaqvcDkppUYwxwy2R/JPBKsVTTBhBL1U/57Ehq3e6aiO+WjDreKW9regf6f/9q0hGcKYU41IHS6PKAE7zCADlGcTLGl1h3ImieKRhFuIWzbr1aT+++K19ptH379n4XNA+lO3NW3fMPg6cbV5j7cXG83A==")
 export SENDGRID_USER=$(decrypt "JfyyuxDC2BV7RdvbRq2bn7J+IV2bpnpwSFkeJbVBn5Vq72311Dp4iwS+HLZBtOECKhWUSgGdrbWGtw+PBVcSFfWkdVKOP0bf+L79mTFU4pee0skGyzMh6OzvEZnrQrIImFhan8psf4euWr8UqmWsnwgnozWM30KjKaEfUI6cXCWUOy659ddz9md5fy/gnVwDrvtljpi+nRCrc57tl6RvRWm3c4DenuNsrYuLs+/jq+BPxxnD3+FYKfEAF28I5EhLLYcbZgmxvJ0nyWDDsgcTV/3D62mveSKqwZ2e3IvthRyvcL1+5ukB523VTGHzFwaTClneTIB3uCBEdXBpeeYhyA==")
 export SENDGRID_KEY=$(decrypt "EZoX8O9e6TbROvMyJA4sa2QG9Ow3Jc1NRtrwEf5WFFPQ7glm9Aqy+pBjMVFlq/WpkPyiWBsei7q1q0gyRULzRYac2Q8dHBjNaL1e975jbPz79WcoYNgTd2sYNYv9X8jYvU0ORVq9jKh2eNaQFH5MP7j1WM83Tzyk5Nm5np5YLPNiMFUoOzj2BgqcZb0Rbyqreo5cjuj5QHtJA2jCdDtSCPT+0ci52ffcuCL3ct58dvG8KJaul/LyQSmH5RdoiTiV8NEOlpOpre4thKFzLmH/4OXuJh9ngJtv87Z3YQDRfDnlEyk+NyFOM8fuAlPhUguV7idMgyEg9wjCk++fiYAVWg==")
+export GITHUB_CLIENTID=$(decrypt "QOtChezPKZ+fv5HnhFqg/hk7NiOFa1zYLVpf9xP0D6morQc7za2ucD3mK4lZ4/jWT66wUxvm+6wQ5i/0R6EZvwt5JAA2wBb3d8s/Pzo8mnALJEb5PeHtP/y1RSefjnnK2TZCVz7QZz3kspKemsTYc3HLuGdixDVgnkujFqKM/od8xA4hPhhlAwQLSWSHCvsukAb32HpJaBPjMcX1WzqNa66zdtusu0oCuOymTD1z/Z4QFJUijSHKNfKW4XJlouIvqvPRHlATN207PCIKa03tnC06Dk0JelC3QZoeETyoG9hvLm34VP9ftDYkPrliCEqjgSDYIQBwvMiOLUbb2ZsTVQ==")
+export GITHUB_CLIENTSECRET=$(decrypt "GafhgcM/n9MIG2UfS1mgak4rSsYZZMMHkhGZVXVk5Rm1iPankCVk+/IzrIwHqo15CMK4lW/1FZZ1kONY4N2FQH6LUQfVXSaAPvtluLBPQKo/X713gNKvTpcVAuf2PL8cvi4ymwjNiOSrRv8wKiAawHkKzoJM10RrZ1cuGFB/jgUrWofayKoFnXbtiNIdW/PMJcb6+UoV0jSvow1phN8W7bIbmmY4SIlOU9gSWtVjzSe5cLX4SOosNBMrm+dTTbr0O7ewy2F41kbQaiuFiAHs723TBe9RbhbUhSv8ACwlLfUe8SqM194+UYbV9GT0wQibZFIFmxly/EmOxaaTWMv/pA==")
 
 start() {
     echo "Starting $NAME"
@@ -134,7 +136,7 @@ stop() {
     if [ -f $PIDFILE ]; then
         echo "Shutting down $NAME"
         # Tell Forever to stop the process.
-        forever stopbypid $PIDFILE 2>&1 > /dev/null
+        forever stopbypid $(cat $PIDFILE) 2>&1 > /dev/null
         # Get rid of the pidfile, since Forever won't do that.
         rm -f $PIDFILE
         RETVAL=$?

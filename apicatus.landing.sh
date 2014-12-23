@@ -133,7 +133,7 @@ stop() {
     if [ -f $PIDFILE ]; then
         echo "Shutting down $NAME"
         # Tell Forever to stop the process.
-        forever stopbypid $PIDFILE 2>&1 > /dev/null
+        forever stopbypid $(cat $PIDFILE) 2>&1 > /dev/null
         # Get rid of the pidfile, since Forever won't do that.
         rm -f $PIDFILE
         RETVAL=$?
