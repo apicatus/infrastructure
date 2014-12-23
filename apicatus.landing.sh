@@ -119,7 +119,7 @@ start() {
     touch $PIDFILE
 
     forever \
-        --pidFile $PIDFILE
+        --pidFile $PIDFILE \
         --sourceDir $APPLICATION_DIRECTORY \
         -a \
         -l $LOGFILE \
