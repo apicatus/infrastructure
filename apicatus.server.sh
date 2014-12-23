@@ -1,8 +1,8 @@
 #!/bin/bash
 #
-# An example init script for running a Node.js process as a service
-# using Forever as the process monitor. For more configuration options
-# associated with Forever, see: https://github.com/nodejitsu/forever
+# An init.d script for running a Node.js process as a service using Forever as
+# the process monitor. For more configuration options associated with Forever,
+# see: https://github.com/nodejitsu/forever
 #
 # You will need to set the environment variables noted below to conform to
 # your use case, and change the init info comment block.
@@ -14,28 +14,33 @@
 # comment block.
 #
 ### BEGIN INIT INFO
-# Provides:             my-application
+# Provides:             apicatus
 # Required-Start:       $syslog $remote_fs
 # Required-Stop:        $syslog $remote_fs
 # Should-Start:         $local_fs
 # Should-Stop:          $local_fs
 # Default-Start:        2 3 4 5
 # Default-Stop:         0 1 6
-# Short-Description:    My Application
-# Description:          My Application
+# Short-Description:    Apicatus API Server
+# Description:          Apicatus Rest API Services
 ### END INIT INFO
+#
+### BEGIN CHKCONFIG INFO
+# chkconfig: 2345 55 25
+# description: Apicatus Rest API Services
+### END CHKCONFIG INFO
 #
 # Based on:
 # https://gist.github.com/3748766
 # https://github.com/hectorcorrea/hectorcorrea.com/blob/master/etc/forever-initd-hectorcorrea.sh
 # https://www.exratione.com/2011/07/running-a-nodejs-server-as-a-service-using-forever/
-
+#
 # Source function library. Note that this isn't used here, but remains to be
 # uncommented by those who want to edit this script to add more functionality.
 # Note that this is Ubuntu-specific. The scripts and script location are different on
 # RPM-based distributions.
 # . /lib/lsb/init-functions
-
+#
 # The example environment variables below assume that Node.js is
 # installed into /home/node/local/node by building from source as outlined
 # here:
@@ -68,8 +73,12 @@ APPLICATION_DIRECTORY="/var/www/backend"
 APPLICATION_START="app.js"
 PIDFILE="/var/run/apicatus/autostart.backend.pid"
 LOGFILE="/var/log/apicatus/autostart.backend.log"
-
+MIN_UPTIME=5000
+SPIN_SLEEP_TIME=2000
+#
 # Decrypt Function
+# Uses the ssh rsa key within your home directory
+#
 decrypt() {
     PUBLIC_KEY="~/.ssh/id_rsa"
     echo "$1" | openssl base64 -d -A | openssl rsautl -decrypt -inkey <(openssl rsa -in ~/.ssh/id_rsa -outform pem 2> /dev/null)
@@ -84,6 +93,8 @@ export NODE_PATH=$NODE_PATH
 export NODE_ENV=production
 export MONGO_USER=$(decrypt "Y8ZyimnTiChprmvuAG6yi9EtWVbqLgvSgLy+LHrw5JJaM2NFtlhgwGtbYoQhGVMWj7+5EnqIu7LJr/OiEBqkwTW07CQmXpXcekU+FG862cWocrVcBCQxPwQcPENG16RbyzWKDWfP9bg6Js4U/B6gflguGOS0I/xXoJAWzLwVdKQfzn66rSGBV7TYXMXMqrcBfu+Swqa+SscJjkXxWz0EKu99/uLqWgojHSqYJdn1amUrjabclDbij8vO6HdxwPF4YkNjI3+t4HtKF7j4GgSotn+2Q9cd4GwjSqT2dwz9Sa2f9HUJA6L6BXgoi6o6RJeZJwnFHievRV76TOFuDgmlMw==")
 export MONGO_PASS=$(decrypt "QSYmzbiFtX8JYr5z8GMQ0aH2EOIZ0//2UPBnROTcmnAF0OtMOsRXKpF3xsn7+jg1U+8JC3nwOdfc7Gv7+rSGPcOMms9XH64YQUQtnMLJDcPsmZIoKnyu2T0S8i6aL4qAPAkRrc0WXTUinL9CpMrvhmBqhWvGinLuoWjcaQGD1gZgWjpm/RnX/Nm3ViY+oEBaqvcDkppUYwxwy2R/JPBKsVTTBhBL1U/57Ehq3e6aiO+WjDreKW9regf6f/9q0hGcKYU41IHS6PKAE7zCADlGcTLGl1h3ImieKRhFuIWzbr1aT+++K19ptH379n4XNA+lO3NW3fMPg6cbV5j7cXG83A==")
+export SENDGRID_USER=$(decrypt "JfyyuxDC2BV7RdvbRq2bn7J+IV2bpnpwSFkeJbVBn5Vq72311Dp4iwS+HLZBtOECKhWUSgGdrbWGtw+PBVcSFfWkdVKOP0bf+L79mTFU4pee0skGyzMh6OzvEZnrQrIImFhan8psf4euWr8UqmWsnwgnozWM30KjKaEfUI6cXCWUOy659ddz9md5fy/gnVwDrvtljpi+nRCrc57tl6RvRWm3c4DenuNsrYuLs+/jq+BPxxnD3+FYKfEAF28I5EhLLYcbZgmxvJ0nyWDDsgcTV/3D62mveSKqwZ2e3IvthRyvcL1+5ukB523VTGHzFwaTClneTIB3uCBEdXBpeeYhyA==")
+export SENDGRID_KEY=$(decrypt "EZoX8O9e6TbROvMyJA4sa2QG9Ow3Jc1NRtrwEf5WFFPQ7glm9Aqy+pBjMVFlq/WpkPyiWBsei7q1q0gyRULzRYac2Q8dHBjNaL1e975jbPz79WcoYNgTd2sYNYv9X8jYvU0ORVq9jKh2eNaQFH5MP7j1WM83Tzyk5Nm5np5YLPNiMFUoOzj2BgqcZb0Rbyqreo5cjuj5QHtJA2jCdDtSCPT+0ci52ffcuCL3ct58dvG8KJaul/LyQSmH5RdoiTiV8NEOlpOpre4thKFzLmH/4OXuJh9ngJtv87Z3YQDRfDnlEyk+NyFOM8fuAlPhUguV7idMgyEg9wjCk++fiYAVWg==")
 
 start() {
     echo "Starting $NAME"
@@ -102,22 +113,28 @@ start() {
     # The pidfile contains the child process pid, not the forever process pid.
     # We're only using it as a marker for whether or not the process is
     # running.
+    #
+    # Note that redirecting the output to /dev/null (or anywhere) is necessary
+    # to make this script work if provisioning the service via Chef.
     touch $LOGFILE
     touch $PIDFILE
 
-    forever --pidFile $PIDFILE --sourceDir $APPLICATION_DIRECTORY \
-        -a -l $LOGFILE --minUptime 5000 --spinSleepTime 2000 \
-        start $APPLICATION_START &
+    forever \
+        --pidFile $PIDFILE
+        --sourceDir $APPLICATION_DIRECTORY \
+        -a \
+        -l $LOGFILE \
+        --minUptime $MIN_UPTIME \
+        --spinSleepTime $SPIN_SLEEP_TIME \
+        start $APPLICATION_START 2>&1 > /dev/null &
     RETVAL=$?
 }
 
 stop() {
     if [ -f $PIDFILE ]; then
         echo "Shutting down $NAME"
-        # Tell Forever to stop the process. Note that doing it this way means
-        # that each application that runs as a service must have a different
-        # start file name, regardless of which directory it is in.
-        forever stop $APPLICATION_START
+        # Tell Forever to stop the process.
+        forever stopbypid $PIDFILE 2>&1 > /dev/null
         # Get rid of the pidfile, since Forever won't do that.
         rm -f $PIDFILE
         RETVAL=$?
@@ -134,16 +151,26 @@ restart() {
 }
 
 status() {
-    echo "Status for $NAME:"
-    # This is taking the lazy way out on status, as it will return a list of
-    # all running Forever processes. You get to figure out what you want to
-    # know from that information.
-    #
-    # On Ubuntu, this isn't even necessary. To find out whether the service is
+    # On Ubuntu this isn't even necessary. To find out whether the service is
     # running, use "service my-application status" which bypasses this script
     # entirely provided you used the service utility to start the process.
-    forever list
-    RETVAL=$?
+    #
+    # The commented line below is the obvious way of checking whether or not a
+    # process is currently running via Forever, but in recent Forever versions
+    # when the service is started during Chef provisioning a dead pipe is left
+    # behind somewhere and that causes an EPIPE exception to be thrown.
+    # forever list | grep -q "$APPLICATION_PATH"
+    #
+    # So instead we add an extra layer of indirection with this to bypass that
+    # issue.
+    echo `forever list` | grep -q $(cat $PIDFILE)
+    if [ "$?" -eq "0" ]; then
+        echo "$NAME is running."
+        RETVAL=0
+    else
+        echo "$NAME is not running."
+        RETVAL=3
+    fi
 }
 
 case "$1" in
